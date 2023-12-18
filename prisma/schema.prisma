@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model back_order_list {
+  id                  Int                 @id @default(autoincrement())
+  receiving_id        Int
+  po_id               Int
+  bo_code             String              @db.VarChar(50)
+  supplier_id         Int
+  amount              Float               @db.Float
+  discount_perc       Float               @default(0) @db.Float
+  discount            Float               @default(0) @db.Float
+  tax_perc            Float               @default(0) @db.Float
+  tax                 Float               @default(0) @db.Float
+  remarks             String?             @db.Text
+  status              Int                 @default(0) @db.TinyInt
+  date_created        DateTime            @default(now()) @db.DateTime(0)
+  date_updated        DateTime            @default(now()) @db.DateTime(0)
+  supplier_list       supplier_list       @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "back_order_list_ibfk_1")
+  purchase_order_list purchase_order_list @relation(fields: [po_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "back_order_list_ibfk_2")
+  receiving_list      receiving_list      @relation(fields: [receiving_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "back_order_list_ibfk_3")
+  bo_items            bo_items[]          @ignore
+
+  @@index([po_id], map: "po_id")
+  @@index([receiving_id], map: "receiving_id")
+  @@index([supplier_id], map: "supplier_id")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model bo_items {
+  bo_id           Int
+  item_id         Int
+  quantity        Int
+  price           Float           @default(0) @db.Float
+  unit            String          @db.VarChar(50)
+  total           Float           @default(0) @db.Float
+  item_list       item_list       @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bo_items_ibfk_1")
+  back_order_list back_order_list @relation(fields: [bo_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bo_items_ibfk_2")
+
+  @@index([bo_id], map: "bo_id")
+  @@index([item_id], map: "item_id")
+  @@ignore
+}
+
+model item_list {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.Text
+  description   String        @db.Text
+  supplier_id   Int
+  cost          Float         @default(0) @db.Float
+  status        Boolean       @default(true)
+  date_created  DateTime      @default(now()) @db.DateTime(0)
+  date_updated  DateTime      @default(now()) @db.DateTime(0)
+  bo_items      bo_items[]    @ignore
+  supplier_list supplier_list @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "item_list_ibfk_1")
+  po_items      po_items[]    @ignore
+  stock_list    stock_list[]
+
+  @@index([supplier_id], map: "supplier_id")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model po_items {
+  po_id               Int
+  item_id             Int
+  quantity            Int
+  price               Float               @default(0) @db.Float
+  unit                String              @db.VarChar(50)
+  total               Float               @default(0) @db.Float
+  purchase_order_list purchase_order_list @relation(fields: [po_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "po_items_ibfk_1")
+  item_list           item_list           @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "po_items_ibfk_2")
+
+  @@index([item_id], map: "item_id")
+  @@index([po_id], map: "po_id")
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model purchase_order_list {
+  id              Int               @id @default(autoincrement())
+  po_code         String            @db.VarChar(50)
+  supplier_id     Int
+  amount          Float             @db.Float
+  discount_perc   Float             @default(0) @db.Float
+  discount        Float             @default(0) @db.Float
+  tax_perc        Float             @default(0) @db.Float
+  tax             Float             @default(0) @db.Float
+  remarks         String            @db.Text
+  status          Int               @default(0) @db.TinyInt
+  date_created    DateTime          @default(now()) @db.DateTime(0)
+  date_updated    DateTime          @default(now()) @db.DateTime(0)
+  back_order_list back_order_list[]
+  po_items        po_items[]        @ignore
+  supplier_list   supplier_list     @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "purchase_order_list_ibfk_1")
+
+  @@index([supplier_id], map: "supplier_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model receiving_list {
+  id              Int               @id @default(autoincrement())
+  form_id         Int
+  from_order      Boolean           @default(true)
+  amount          Float             @default(0) @db.Float
+  discount_perc   Float             @default(0) @db.Float
+  discount        Float             @default(0) @db.Float
+  tax_perc        Float             @default(0) @db.Float
+  tax             Float             @default(0) @db.Float
+  stock_ids       String?           @db.Text
+  remarks         String?           @db.Text
+  date_created    DateTime          @default(now()) @db.DateTime(0)
+  date_updated    DateTime          @default(now()) @db.DateTime(0)
+  back_order_list back_order_list[]
+}
+
+model return_list {
+  id            Int           @id @default(autoincrement())
+  return_code   String        @db.VarChar(50)
+  supplier_id   Int
+  amount        Float         @default(0) @db.Float
+  remarks       String?       @db.Text
+  stock_ids     String        @db.Text
+  date_created  DateTime      @default(now()) @db.DateTime(0)
+  date_updated  DateTime      @default(now()) @db.DateTime(0)
+  supplier_list supplier_list @relation(fields: [supplier_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "return_list_ibfk_1")
+
+  @@index([supplier_id], map: "supplier_id")
+}
+
+model sales_list {
+  id           Int      @id @default(autoincrement())
+  sales_code   String   @db.VarChar(50)
+  client       String?  @db.Text
+  amount       Float    @default(0) @db.Float
+  remarks      String?  @db.Text
+  stock_ids    String   @db.Text
+  date_created DateTime @default(now()) @db.DateTime(0)
+  date_updated DateTime @default(now()) @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model stock_list {
+  id           Int       @id @default(autoincrement())
+  item_id      Int
+  quantity     Int
+  unit         String?   @db.VarChar(250)
+  price        Float     @default(0) @db.Float
+  total        Float     @default(dbgenerated("(current_timestamp())")) @db.Float
+  type         Boolean   @default(true)
+  date_created DateTime  @default(now()) @db.DateTime(0)
+  item_list    item_list @relation(fields: [item_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "stock_list_ibfk_1")
+
+  @@index([item_id], map: "item_id")
+}
+
+model supplier_list {
+  id                  Int                   @id @default(autoincrement())
+  name                String                @db.Text
+  address             String                @db.Text
+  cperson             String                @db.Text
+  contact             String                @db.Text
+  status              Boolean               @default(true)
+  date_created        DateTime              @default(now()) @db.DateTime(0)
+  date_updated        DateTime              @default(now()) @db.DateTime(0)
+  back_order_list     back_order_list[]
+  item_list           item_list[]
+  purchase_order_list purchase_order_list[]
+  return_list         return_list[]
+}
+
+model system_info {
+  id         Int    @id @default(autoincrement())
+  meta_field String @db.Text
+  meta_value String @db.Text
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model user_meta {
+  user_id      Int
+  meta_field   String   @db.Text
+  meta_value   String   @db.Text
+  date_created DateTime @default(now()) @db.DateTime(0)
+
+  @@index([user_id], map: "user_id")
+  @@ignore
+}
+
+model users {
+  id           Int       @id @default(autoincrement())
+  firstname    String    @db.VarChar(250)
+  middlename   String?   @db.Text
+  lastname     String    @db.VarChar(250)
+  username     String    @db.Text
+  password     String    @db.Text
+  avatar       String?   @db.Text
+  last_login   DateTime? @db.DateTime(0)
+  type         Boolean   @default(false)
+  date_added   DateTime  @default(now()) @db.DateTime(0)
+  date_updated DateTime? @db.DateTime(0)
+}
