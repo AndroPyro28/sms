@@ -43,7 +43,7 @@ $conn = $dbConnection->conn2;
                     <tbody>
                         <?php 
                         $i = 1;
-                        $qry = $conn->query("SELECT  r.*,  b.name as barangay_name FROM requests r INNER JOIN barangay b ON b.barangay_id = r.barangay_id");
+                        $qry = $conn->query("SELECT  r.*,  b.name as barangay_name FROM requests r INNER JOIN barangay b ON b.barangay_id = r.barangay_id WHERE r.request_status = 'PENDING' OR r.request_status = 'ONGOING'");
                         while($row = $qry->fetch_assoc()):
                         ?>
                             <tr>
@@ -68,12 +68,7 @@ $conn = $dbConnection->conn2;
                                         <span class="sr-only">Toggle Dropdown</span>
                                     </button>
                                     <div class="dropdown-menu" role="menu">
-                                    <?php if($row['request_status'] == "PENDING"): ?>
                                         <a class="dropdown-item" href="<?php echo base_url.'admin?page=requests/manage_request&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-boxes text-dark"></span> Manage</a>
-                                        <div class="dropdown-divider"></div>
-                                    <?php endif; ?>
-                                        <a class="dropdown-item" href="<?php echo base_url.'admin?page=back_order/view_bo&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-eye text-dark"></span> View</a>
-                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
