@@ -1,7 +1,3 @@
-<?php
-  // require_once('sess_auth.php');
-  
-?>
 <head>
   <style>
     :root{

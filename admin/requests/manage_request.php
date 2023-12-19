@@ -26,6 +26,12 @@ if (isset($_GET['id'])) {
     // Fetch data and store it in $requestData array using mysqli_fetch_assoc
     if ($qry) {
         $requestData = $qry->fetch_assoc();
+
+        // check if status is not pending then redirect to requests list
+        if ($requestData['request_status'] != "PENDING") {
+            redirect('admin/?page=requests');
+            exit(); // Ensure that the script stops execution after the redirect
+        }
     }
 }
 ?>
@@ -198,7 +204,7 @@ if (isset($_GET['id'])) {
                     console.log(response);
                     if (response.success) {
                         alert('Request submitted successfully');
-                        window.location.reload()
+                        window.location.assign('/sms/admin/?page=requests')
                     } else {
                         alert('Error submitting request: ' + response.message);
                     }

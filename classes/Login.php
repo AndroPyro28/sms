@@ -18,7 +18,7 @@ class Login extends DBConnection {
 	public function login(){
 		extract($_POST);
 
-		$qry = $this->conn->query("SELECT * from users where username = '$username' and password = md5('$password')");
+		$qry = $this->conn1->query("SELECT * from users where username = '$username' and password = md5('$password')");
 		if($qry->num_rows > 0){
 			foreach($qry->fetch_array() as $k => $v){
 				if(!is_numeric($k) && $k != 'password'){
@@ -39,7 +39,7 @@ class Login extends DBConnection {
 	}
 	function login_user(){
 		extract($_POST);
-		$qry = $this->conn->query("SELECT * from users where username = '$username' and password = md5('$password') and `type` = 2 ");
+		$qry = $this->conn1->query("SELECT * from users where username = '$username' and password = md5('$password') and `type` = 2 ");
 		if($qry->num_rows > 0){
 			foreach($qry->fetch_array() as $k => $v){
 				$this->settings->set_userdata($k,$v);
@@ -49,9 +49,9 @@ class Login extends DBConnection {
 		}else{
 		$resp['status'] = 'incorrect';
 		}
-		if($this->conn->error){
+		if($this->conn1->error){
 			$resp['status'] = 'failed';
-			$resp['_error'] = $this->conn->error;
+			$resp['_error'] = $this->conn1->error;
 		}
 		return json_encode($resp);
 	}

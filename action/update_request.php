@@ -39,7 +39,7 @@ foreach ($data as $item) {
 
     if ($quantity > 0) {
         // check if the item name already exists in $conn2
-        $checkQuery = "SELECT * FROM inventory WHERE name = '{$itemName}' AND barangay_id = {$barangay_id}";
+        $checkQuery = "SELECT * FROM inventory WHERE name = '{$itemName}' AND barangay_id = {$barangay_id} AND request_id = {$request_id}";
         $result = $conn2->query($checkQuery);
 
         // if it exists, then update its stock/quantity
@@ -54,7 +54,7 @@ foreach ($data as $item) {
             }
         } else {
             // Item does not exist, create a new inventory item
-            $insertQuery = "INSERT INTO inventory (name, quantity, barangay_id) VALUES ('{$itemName}', {$quantity}, {$barangay_id})";
+            $insertQuery = "INSERT INTO inventory (name, quantity, barangay_id, request_id, isArchive) VALUES ('{$itemName}', {$quantity}, {$barangay_id}, {$request_id}, true)";
             if (!$conn2->query($insertQuery)) {
                 $response = ['success' => false, 'message' => 'Error inserting new item into inventory: ' . $conn2->error];
                 echo json_encode($response);

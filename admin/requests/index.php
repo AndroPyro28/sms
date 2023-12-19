@@ -13,7 +13,7 @@ $conn = $dbConnection->conn2;
 
 <div class="card card-outline card-primary">
 	<div class="card-header">
-		<h3 class="card-title">Orders and Back Order List</h3>
+		<h3 class="card-title">Barangay Request List</h3>
         <!-- <div class="card-tools">
 			<a href="<?php echo base_url ?>admin/?page=back_order/manage_bo" class="btn btn-flat btn-primary"><span class="fas fa-plus"></span>  Create New</a>
 		</div> -->
@@ -68,7 +68,12 @@ $conn = $dbConnection->conn2;
                                         <span class="sr-only">Toggle Dropdown</span>
                                     </button>
                                     <div class="dropdown-menu" role="menu">
+                                    <?php if($row['request_status'] == "PENDING"): ?>
                                         <a class="dropdown-item" href="<?php echo base_url.'admin?page=requests/manage_request&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-boxes text-dark"></span> Manage</a>
+                                        <?php elseif($row['request_status'] == "ONGOING"): ?>
+                                        <a class="dropdown-item" href="<?php echo base_url.'admin?page=requests/view_request&id='.$row['id'] ?>" data-id="<?php echo $row['id'] ?>"><span class="fa fa-boxes text-dark"></span> Manage</a>
+                                    <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
